@@ -1,34 +1,60 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useEffect, useState } from 'react'
+import { SAMPLE } from './data.js'
+import { T } from './i18n.js'
+import Header from './components/Header.jsx'
+import MapView from './components/MapView.jsx'
+
+const LANG_KEY = 'smart-escape-lang'
+
+function loadLang() {
+  try {
+    const saved = localStorage.getItem(LANG_KEY)
+    if (saved === 'bn' || saved === 'en') return saved
+  } catch {
+    // storage unavailable — fall back to default
+  }
+  return 'bn'
+}
+
+function hazardsFrom(graph) {
+  const init = graph.initial_state || {}
+  return {
+    blocked_nodes: [...(init.blocked_nodes || [])],
+    blocked_edges: [...(init.blocked_edges || [])],
+    closed_exits: [...(init.closed_exits || [])],
+  }
+}
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [graph, setGraph] = useState(SAMPLE)
+  const [hazards, setHazards] = useState(() => hazardsFrom(SAMPLE))
+  const [start, setStart] = useState(null)
+  const [lang, setLang] = useState(loadLang)
+
+  const t = T[lang]
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(LANG_KEY, lang)
+    } catch {
+      // ignore
+    }
+    document.documentElement.lang = lang
+    document.title = t.appTitle
+  }, [lang, t])
+
+  const toggleLang = () => setLang((l) => (l === 'bn' ? 'en' : 'bn'))
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <div className="app">
+      <Header t={t} buildingName={graph.building} onToggleLang={toggleLang} />
+      <main className="layout">
+        <section className="map-panel">
+          <MapView t={t} graph={graph} hazards={hazards} start={start} />
+        </section>
+        <aside className="side-panel" />
+      </main>
+    </div>
   )
 }
 
