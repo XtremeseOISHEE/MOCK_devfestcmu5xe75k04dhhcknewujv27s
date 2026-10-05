@@ -61,7 +61,7 @@ export function validateBuilding(data) {
       let ref
       if (!isNonEmptyString(n.id)) {
         err('errNodeId', { n: pos })
-        ref = `#${pos}`
+        ref = { pos }
       } else {
         ref = n.id
         if (nodeTypes.has(n.id)) err('errNodeIdDup', { id: n.id })
@@ -98,7 +98,7 @@ export function validateBuilding(data) {
       let ref
       if (!isNonEmptyString(e.id)) {
         err('errEdgeId', { n: pos })
-        ref = `#${pos}`
+        ref = { pos }
       } else {
         ref = e.id
         if (edgeIds.has(e.id)) err('errEdgeIdDup', { id: e.id })

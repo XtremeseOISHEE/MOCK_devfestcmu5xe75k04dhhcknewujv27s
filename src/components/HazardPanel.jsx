@@ -1,3 +1,5 @@
+import { format } from '../i18n.js'
+
 function HazardRow({ name, active, status, onLabel, offLabel, onToggle }) {
   return (
     <li className={active ? 'hazard-row hazard-row-on' : 'hazard-row'}>
@@ -91,7 +93,7 @@ function HazardPanel({ t, graph, hazards, onToggleHazard, onReset }) {
             {edges.map((e) => (
               <HazardRow
                 key={e.id}
-                name={`${labelOf(e.from)} – ${labelOf(e.to)}`}
+                name={format(t, t.corridorName, { a: labelOf(e.from), b: labelOf(e.to) })}
                 active={blockedEdges.has(e.id)}
                 status={t.blocked}
                 onLabel={t.unblock}

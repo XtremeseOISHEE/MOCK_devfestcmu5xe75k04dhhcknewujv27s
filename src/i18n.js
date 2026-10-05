@@ -34,6 +34,9 @@ export const T = {
     blockedNode: 'অবরুদ্ধ স্থান',
     blockedCorridor: 'অবরুদ্ধ করিডোর',
     closedExit: 'বন্ধ বহির্গমন পথ',
+    corridorName: '{a} – {b}',
+    actionOn: '{action}: {name}',
+    itemNumber: '#{n}',
     loadSample: 'নমুনা ভবন লোড করুন',
     dismiss: 'সরিয়ে দিন',
     loadedBuilding: '“{name}” লোড করা হয়েছে।',
@@ -60,7 +63,7 @@ export const T = {
     errEdgeId: '{n} নম্বর করিডোরের "id" নেই বা খালি।',
     errEdgeIdDup: 'করিডোর আইডি "{id}" একাধিকবার ব্যবহার করা হয়েছে।',
     errEdgeEndpoint: 'করিডোর "{id}"-এর "{field}" নোড "{node}" নোডের তালিকায় নেই।',
-    errEdgeCost: 'করিডোর "{id}"-এর cost {value}; এটি অবশ্যই একটি ধনাত্মক পূর্ণসংখ্যা হতে হবে।',
+    errEdgeCost: 'করিডোর "{id}"-এর "cost"-এর মান {value}; এটি অবশ্যই একটি ধনাত্মক পূর্ণসংখ্যা হতে হবে।',
     errSelfLoop: 'করিডোর "{id}" নোড "{node}"-কে নিজের সাথেই যুক্ত করেছে।',
     errDupPair: 'করিডোর "{other}" ও "{id}" দুটোই "{a}" এবং "{b}"-কে যুক্ত করেছে; একই জোড়ার জন্য একটিই করিডোর থাকতে পারে।',
     errInitialState: '"initial_state" নেই অথবা এটি একটি অবজেক্ট নয়।',
@@ -105,6 +108,9 @@ export const T = {
     blockedNode: 'Blocked location',
     blockedCorridor: 'Blocked corridor',
     closedExit: 'Closed exit',
+    corridorName: '{a} – {b}',
+    actionOn: '{action}: {name}',
+    itemNumber: '#{n}',
     loadSample: 'Load sample building',
     dismiss: 'Dismiss',
     loadedBuilding: 'Loaded “{name}”.',
@@ -131,7 +137,7 @@ export const T = {
     errEdgeId: 'Corridor number {n} has a missing or empty "id".',
     errEdgeIdDup: 'Corridor ID "{id}" is used more than once.',
     errEdgeEndpoint: 'Corridor "{id}": its "{field}" node "{node}" is not in the node list.',
-    errEdgeCost: 'Corridor "{id}" has cost {value}; it must be a positive whole number.',
+    errEdgeCost: 'Corridor "{id}" has "cost" {value}; it must be a positive whole number.',
     errSelfLoop: 'Corridor "{id}" connects node "{node}" to itself.',
     errDupPair: 'Corridors "{other}" and "{id}" both connect "{a}" and "{b}"; each pair may only have one corridor.',
     errInitialState: '"initial_state" is missing or is not an object.',
@@ -145,11 +151,14 @@ export const T = {
 }
 
 // Fill {placeholders} in a message. Numbers are written in the language's digits.
+// A { pos } value (an item with no usable ID) is written as its position number.
 export function format(t, template, params = {}) {
   const nf = new Intl.NumberFormat(t.locale)
   return template.replace(/\{(\w+)\}/g, (m, k) => {
     if (!(k in params)) return m
     const v = params[k]
-    return typeof v === 'number' ? nf.format(v) : String(v)
+    if (typeof v === 'number') return nf.format(v)
+    if (v && typeof v === 'object' && 'pos' in v) return format(t, t.itemNumber, { n: v.pos })
+    return String(v)
   })
 }

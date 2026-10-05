@@ -1,3 +1,5 @@
+import { format } from '../i18n.js'
+
 const PAD = 40
 // Labels sit to the right of each node, so leave extra room on that side.
 const LABEL_PAD_RIGHT = 100
@@ -104,7 +106,8 @@ function MapView({ t, graph, hazards, start, route, onSelectStart, onToggleHazar
           const [a, b] = ends
           const blocked = blockedEdges.has(e.id)
           const action = blocked ? t.unblock : t.block
-          const name = `${labelOf(e.from)} – ${labelOf(e.to)}`
+          const name = format(t, t.corridorName, { a: labelOf(e.from), b: labelOf(e.to) })
+          const tip = format(t, t.actionOn, { action, name })
           const mx = (a.x + b.x) / 2
           const my = (a.y + b.y) / 2
           const text = fmt.format(e.cost)
@@ -120,9 +123,9 @@ function MapView({ t, graph, hazards, start, route, onSelectStart, onToggleHazar
             <g
               key={e.id}
               className={cls}
-              {...buttonProps(`${action}: ${name}`, () => onToggleHazard('blocked_edges', e.id), blocked)}
+              {...buttonProps(tip, () => onToggleHazard('blocked_edges', e.id), blocked)}
             >
-              <title>{`${action}: ${name}`}</title>
+              <title>{tip}</title>
               <line className="edge-hit" x1={a.x} y1={a.y} x2={b.x} y2={b.y} />
               <g className="cost-chip">
                 <rect
@@ -174,6 +177,7 @@ function MapView({ t, graph, hazards, start, route, onSelectStart, onToggleHazar
           const hazardAction = isExit
             ? (closed ? t.reopen : t.close)
             : (blocked ? t.unblock : t.block)
+          const hazardTip = format(t, t.actionOn, { action: hazardAction, name: n.label })
           const bx = n.x + BTN_OFFSET
           const by = n.y + BTN_OFFSET
 
@@ -203,13 +207,9 @@ function MapView({ t, graph, hazards, start, route, onSelectStart, onToggleHazar
 
               <g
                 className={hazardOn ? 'hazard-btn hazard-btn-on' : 'hazard-btn'}
-                {...buttonProps(
-                  `${hazardAction}: ${n.label}`,
-                  () => onToggleHazard(hazardKey, n.id),
-                  hazardOn,
-                )}
+                {...buttonProps(hazardTip, () => onToggleHazard(hazardKey, n.id), hazardOn)}
               >
-                <title>{`${hazardAction}: ${n.label}`}</title>
+                <title>{hazardTip}</title>
                 <circle cx={bx} cy={by} r={BTN_R} />
                 <circle className="hazard-icon" cx={bx} cy={by} r={3.5} />
                 <path
