@@ -5,6 +5,8 @@ import { findRoute } from './routing.js'
 import Header from './components/Header.jsx'
 import MapView from './components/MapView.jsx'
 import RoutePanel from './components/RoutePanel.jsx'
+import HazardPanel from './components/HazardPanel.jsx'
+import Legend from './components/Legend.jsx'
 
 const LANG_KEY = 'smart-escape-lang'
 
@@ -52,6 +54,16 @@ function App() {
 
   const toggleLang = () => setLang((l) => (l === 'bn' ? 'en' : 'bn'))
 
+  // key is one of blocked_nodes, blocked_edges, closed_exits.
+  const toggleHazard = (key, id) =>
+    setHazards((h) => {
+      const list = h[key]
+      const next = list.includes(id) ? list.filter((x) => x !== id) : [...list, id]
+      return { ...h, [key]: next }
+    })
+
+  const resetHazards = () => setHazards(hazardsFrom(graph))
+
   return (
     <div className="app">
       <Header t={t} buildingName={graph.building} onToggleLang={toggleLang} />
@@ -64,10 +76,19 @@ function App() {
             start={start}
             route={route}
             onSelectStart={setStart}
+            onToggleHazard={toggleHazard}
           />
         </section>
         <aside className="side-panel">
           <RoutePanel t={t} graph={graph} start={start} route={route} />
+          <HazardPanel
+            t={t}
+            graph={graph}
+            hazards={hazards}
+            onToggleHazard={toggleHazard}
+            onReset={resetHazards}
+          />
+          <Legend t={t} />
         </aside>
       </main>
     </div>
