@@ -12,4 +12,7 @@ Project rules — follow for every change.
 - Commit message format:
   <short note of what changed>
   Prompt: "<the exact prompt I gave you>"
+- When writing commit messages, do not use escaped double quotes inside the
+  message — write the prompt as plain text after "Prompt:" with no
+  surrounding quotes.
 - Never force push, rebase, or rewrite history.
