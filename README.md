@@ -55,7 +55,6 @@ Writes a production build to `dist/`.
 
 ## Known issues
 
-- **Live link is not public.** At the time of writing, the Netlify URL redirects to Netlify's "Team protection" login page, so visitors without access to the Netlify team cannot open the app.
 - **No automated tests.** Routing and validation were checked with one-off scripts and manual testing in the browser; there is no test suite in the repository.
 - **Label and control placement is fixed.** Node labels sit above-right of each node and the block button below-right. On datasets with dense nodes or diagonal corridors these can overlap lines or each other, and very long labels may run past the map edge (the right padding is fixed).
 - **No zoom or pan.** A large building (up to 60 nodes) is scaled down to fit, so labels and the small map buttons can become hard to read and tap, especially on phones.
