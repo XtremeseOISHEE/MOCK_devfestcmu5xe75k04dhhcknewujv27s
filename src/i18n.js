@@ -1,6 +1,7 @@
 // Every user-facing string lives here. Node labels from the dataset are never translated.
 export const T = {
   bn: {
+    locale: 'bn-BD',
     appTitle: 'স্মার্ট এস্কেপ',
     langToggle: 'English',
     startLocation: 'শুরুর স্থান',
@@ -27,6 +28,7 @@ export const T = {
     mapLabel: 'ভবনের মানচিত্র',
   },
   en: {
+    locale: 'en-US',
     appTitle: 'Smart Escape',
     langToggle: 'বাংলা',
     startLocation: 'Start location',

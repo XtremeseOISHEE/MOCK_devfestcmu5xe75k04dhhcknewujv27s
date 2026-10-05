@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { SAMPLE } from './data.js'
 import { T } from './i18n.js'
+import { findRoute } from './routing.js'
 import Header from './components/Header.jsx'
 import MapView from './components/MapView.jsx'
+import RoutePanel from './components/RoutePanel.jsx'
 
 const LANG_KEY = 'smart-escape-lang'
 
@@ -33,6 +35,11 @@ function App() {
 
   const t = T[lang]
 
+  const route = useMemo(
+    () => (start ? findRoute(graph, hazards, start) : null),
+    [graph, hazards, start],
+  )
+
   useEffect(() => {
     try {
       localStorage.setItem(LANG_KEY, lang)
@@ -50,9 +57,18 @@ function App() {
       <Header t={t} buildingName={graph.building} onToggleLang={toggleLang} />
       <main className="layout">
         <section className="map-panel">
-          <MapView t={t} graph={graph} hazards={hazards} start={start} />
+          <MapView
+            t={t}
+            graph={graph}
+            hazards={hazards}
+            start={start}
+            route={route}
+            onSelectStart={setStart}
+          />
         </section>
-        <aside className="side-panel" />
+        <aside className="side-panel">
+          <RoutePanel t={t} graph={graph} start={start} route={route} />
+        </aside>
       </main>
     </div>
   )
