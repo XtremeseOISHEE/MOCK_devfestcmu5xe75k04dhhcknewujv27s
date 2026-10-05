@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from 'react'
 import { SAMPLE } from './data.js'
 import { T } from './i18n.js'
 import { findRoute } from './routing.js'
+import { validateBuilding } from './validate.js'
 import Header from './components/Header.jsx'
 import MapView from './components/MapView.jsx'
 import RoutePanel from './components/RoutePanel.jsx'
 import HazardPanel from './components/HazardPanel.jsx'
 import Legend from './components/Legend.jsx'
+import ImportNotice from './components/ImportNotice.jsx'
 
 const LANG_KEY = 'smart-escape-lang'
 
@@ -34,6 +36,7 @@ function App() {
   const [hazards, setHazards] = useState(() => hazardsFrom(SAMPLE))
   const [start, setStart] = useState(null)
   const [lang, setLang] = useState(loadLang)
+  const [notice, setNotice] = useState(null)
 
   const t = T[lang]
 
@@ -64,9 +67,54 @@ function App() {
 
   const resetHazards = () => setHazards(hazardsFrom(graph))
 
+  const loadBuilding = (data) => {
+    setGraph(data)
+    setHazards(hazardsFrom(data))
+    setStart(null)
+    setNotice({ kind: 'success', name: data.building })
+  }
+
+  // Nothing changes unless the file passes every check.
+  const importFile = async (file) => {
+    let text
+    try {
+      text = await file.text()
+    } catch {
+      setNotice({ kind: 'error', errors: [{ key: 'errRead', params: {} }] })
+      return
+    }
+    let data
+    try {
+      data = JSON.parse(text)
+    } catch {
+      setNotice({ kind: 'error', errors: [{ key: 'errParse', params: {} }] })
+      return
+    }
+    const errors = validateBuilding(data)
+    if (errors.length > 0) {
+      setNotice({ kind: 'error', errors })
+      return
+    }
+    loadBuilding(data)
+  }
+
+  // Success messages are brief; errors stay until dismissed.
+  useEffect(() => {
+    if (notice?.kind !== 'success') return
+    const id = setTimeout(() => setNotice(null), 4000)
+    return () => clearTimeout(id)
+  }, [notice])
+
   return (
     <div className="app">
-      <Header t={t} buildingName={graph.building} onToggleLang={toggleLang} />
+      <Header
+        t={t}
+        buildingName={graph.building}
+        onToggleLang={toggleLang}
+        onImportFile={importFile}
+        onLoadSample={() => loadBuilding(SAMPLE)}
+      />
+      <ImportNotice t={t} notice={notice} onDismiss={() => setNotice(null)} />
       <main className="layout">
         <section className="map-panel">
           <MapView
